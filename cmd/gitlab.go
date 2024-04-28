@@ -24,5 +24,4 @@ func init() {
 
 	gitlabCmd.PersistentFlags().StringP("gitlab-url", "u", "", "GitLab URL")
 	gitlabCmd.PersistentFlags().StringP("gitlab-token", "t", "", "Gitlab token")
-
 }
