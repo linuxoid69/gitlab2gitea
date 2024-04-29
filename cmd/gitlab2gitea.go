@@ -27,9 +27,11 @@ var gitlab2giteaCmd = &cobra.Command{
 		}
 
 		if err := git.CloneByHTTPS(&git.RepoOpt{
-			URL:     viper.GetString("gitlab.url"),
-			Token:   viper.GetString("gitlab.token"),
-			Project: project,
+			URL:      viper.GetString("gitlab.url"),
+			Username: git.GIT_GITLAB_DEFAULT_USERNAME,
+			Token:    viper.GetString("gitlab.token"),
+			TemDir:   git.GIT_MIGRATE_TEMP_DIR,
+			Project:  project,
 		}); err != nil {
 			fmt.Println("Error cloning repo: ", err)
 			os.Exit(1)
