@@ -5,25 +5,39 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/linuxoid69/gitlab2gitea/internal/config"
+	"github.com/linuxoid69/gitlab2gitea/internal/git"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // gitlab2giteaCmd represents the gitlab2gitea command
 var gitlab2giteaCmd = &cobra.Command{
 	Use:   "gitlab2gitea",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Migrate GitLab repo to Gitea",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("gitlab2gitea called")
+		config.CheckConfigFileExists()
+
+		project, err := cmd.Flags().GetString("gitlab-project")
+		if err != nil || project == "" {
+			fmt.Println("Failed to get flag `gitlab-project`")
+			os.Exit(1)
+		}
+
+		if err := git.CloneByHTTPS(&git.RepoOpt{
+			URL:     viper.GetString("gitlab.url"),
+			Token:   viper.GetString("gitlab.token"),
+			Project: project,
+		}); err != nil {
+			fmt.Println("Error cloning repo: ", err)
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
 	migrateCmd.AddCommand(gitlab2giteaCmd)
+	gitlab2giteaCmd.Flags().StringP("gitlab-project", "p", "", "Gitlab project")
 }

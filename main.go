@@ -1,6 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2024 Rustam Tagaev linuxoid69@gmail.com
 */
 package main
 

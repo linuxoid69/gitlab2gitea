@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/linuxoid69/gitlab2gitea/internal/config"
 	"github.com/linuxoid69/gitlab2gitea/internal/gitlab"
@@ -20,12 +21,13 @@ var listProjectsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config.CheckConfigFileExists()
 
-		glab := gitlab.NewClient(viper.GetString("gitlab.url"), viper.GetString("gitlab.token"))
-
 		groupName, err := cmd.Flags().GetString("group-name")
-		if err != nil {
-			log.Fatalf("Failed to get GitLab URL flag: %v", err)
+		if err != nil || groupName == "" {
+			fmt.Println("Failed to get flag `group-name`")
+			os.Exit(1)
 		}
+
+		glab := gitlab.NewClient(viper.GetString("gitlab.url"), viper.GetString("gitlab.token"))
 
 		projects, err := glab.ListGroupProjects(groupName)
 		if err != nil {
