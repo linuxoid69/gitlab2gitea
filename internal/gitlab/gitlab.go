@@ -12,7 +12,7 @@ type Client struct {
 }
 
 // NewClient returns a new Client
-func NewClient(token, url string) *Client {
+func NewClient(url, token string) *Client {
 	return &Client{
 		Token: token,
 		URL:   url,

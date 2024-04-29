@@ -5,11 +5,12 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/linuxoid69/gitlab2gitea/internal/config"
 	"github.com/linuxoid69/gitlab2gitea/internal/gitlab"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // listGroupsCmd represents the listGroups command
@@ -17,24 +18,10 @@ var listGroupsCmd = &cobra.Command{
 	Use:   "listGroups",
 	Short: "Get list of groups from GitLab",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		gitlabToken, err := cmd.Flags().GetString("gitlab-token")
-		if err != nil {
-			log.Fatalf("Failed to get GitLab token flag: %v", err)
-		}
-	
-		gitlabURL, err := cmd.Flags().GetString("gitlab-url")
-		if err != nil {
-			log.Fatalf("Failed to get GitLab URL flag: %v", err)
-		}
-	
-		if gitlabToken == "" || gitlabURL == "" {
-			cmd.Help()
-			os.Exit(0)
-		}
 		
-
-		glab := gitlab.NewClient(gitlabToken, gitlabURL)
+		config.CheckConfigFileExists()
+		
+		glab := gitlab.NewClient(viper.GetString("gitlab.url"), viper.GetString("gitlab.token"))
 
 		groups, err := glab.ListGroups()
 		if err != nil {
