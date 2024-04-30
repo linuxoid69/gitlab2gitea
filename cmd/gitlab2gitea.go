@@ -22,7 +22,7 @@ var gitlab2giteaCmd = &cobra.Command{
 
 		project, err := cmd.Flags().GetString("gitlab-project")
 		if err != nil || project == "" {
-			fmt.Println("Failed to get flag `gitlab-project`")
+			cmd.Help()
 			os.Exit(1)
 		}
 
@@ -36,6 +36,9 @@ var gitlab2giteaCmd = &cobra.Command{
 			fmt.Println("Error cloning repo: ", err)
 			os.Exit(1)
 		}
+		// Check if repo already exists on Gitea
+		// if exists, print skipt message and continue
+		// if not then create new repo on Gitea
 	},
 }
 

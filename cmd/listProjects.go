@@ -23,7 +23,7 @@ var listProjectsCmd = &cobra.Command{
 
 		groupName, err := cmd.Flags().GetString("group-name")
 		if err != nil || groupName == "" {
-			fmt.Println("Failed to get flag `group-name`")
+			cmd.Help()
 			os.Exit(1)
 		}
 
