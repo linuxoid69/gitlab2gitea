@@ -69,7 +69,7 @@ func (c *Client) getGroupID(group string) (int, error) {
 	}
 
 	for _, g := range groups {
-		if g.FullName == group {
+		if g.FullPath == group {
 			return g.ID, nil
 		}
 	}
