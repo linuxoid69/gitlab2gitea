@@ -31,14 +31,27 @@ var listGroupsCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// TODO: move to separate function
+
 		t := table.NewWriter()
-		t.AppendHeader(table.Row{"Group ID", "Group Name", "Group full path", "Description"})
+		tableGroupID := "Group ID"
+		tableGroupName := "Group Name"
+		tableGroupFullPath := "Group full path"
+		tableGroupDesctiption := "Description"
+
+		t.SetStyle(table.StyleBold)
+		t.Style().Color.Header = text.Colors{text.FgHiCyan}
+		t.Style().Color.Border = text.Colors{text.FgHiCyan}
+		t.Style().Color.Row = text.Colors{text.FgHiCyan}
+		t.Style().Color.RowAlternate = text.Colors{text.FgCyan}
+
+		t.AppendHeader(table.Row{tableGroupID, tableGroupName, tableGroupFullPath, tableGroupDesctiption})
 
 		t.SetColumnConfigs([]table.ColumnConfig{
-			{Name: "Group ID", AlignHeader: text.AlignCenter},
-			{Name: "Group Name", AlignHeader: text.AlignCenter},
-			{Name: "Group full path", AlignHeader: text.AlignCenter},
-			{Name: "Description", AlignHeader: text.AlignCenter},
+			{Name: tableGroupID, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
+			{Name: tableGroupName, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
+			{Name: tableGroupFullPath, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
+			{Name: tableGroupDesctiption, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
 		})
 
 		for _, g := range groups {
