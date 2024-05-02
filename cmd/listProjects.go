@@ -6,11 +6,11 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/linuxoid69/gitlab2gitea/internal/config"
+	"github.com/linuxoid69/gitlab2gitea/internal/flags"
 	"github.com/linuxoid69/gitlab2gitea/internal/gitlab"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -23,11 +23,7 @@ var listProjectsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config.CheckConfigFileExists()
 
-		groupName, err := cmd.Flags().GetString("group-name")
-		if err != nil || groupName == "" {
-			cmd.Help()
-			os.Exit(1)
-		}
+		groupName := flags.CheckFlag(cmd, "group-name")
 
 		glab := gitlab.NewClient(viper.GetString("gitlab.url"), viper.GetString("gitlab.token"))
 
@@ -35,7 +31,6 @@ var listProjectsCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("Failed to list projects from GitLab group: %v", err)
 		}
-
 
 		t := table.NewWriter()
 		tableProjectID := "Project ID"
