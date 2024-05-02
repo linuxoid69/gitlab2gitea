@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/linuxoid69/gitlab2gitea/internal/config"
 	"github.com/linuxoid69/gitlab2gitea/internal/gitlab"
 	"github.com/spf13/cobra"
@@ -34,9 +36,34 @@ var listProjectsCmd = &cobra.Command{
 			log.Fatalf("Failed to list projects from GitLab group: %v", err)
 		}
 
+
+		t := table.NewWriter()
+		tableProjectID := "Project ID"
+		tableProjectName := "Project Name"
+		tableProjectFullPath := "Project full path"
+		tableProjectDesctiption := "Description"
+
+		t.SetStyle(table.StyleBold)
+		t.Style().Color.Header = text.Colors{text.FgHiCyan}
+		t.Style().Color.Border = text.Colors{text.FgHiCyan}
+		t.Style().Color.Row = text.Colors{text.FgHiCyan}
+		t.Style().Color.RowAlternate = text.Colors{text.FgCyan}
+
+		t.AppendHeader(table.Row{tableProjectID, tableProjectName, tableProjectFullPath, tableProjectDesctiption})
+
+		t.SetColumnConfigs([]table.ColumnConfig{
+			{Name: tableProjectID, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
+			{Name: tableProjectName, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
+			{Name: tableProjectFullPath, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
+			{Name: tableProjectDesctiption, AlignHeader: text.AlignCenter, Colors: text.Colors{text.FgHiCyan}},
+		})
+
 		for _, p := range projects {
-			fmt.Println(p.Name)
+			t.AppendRow(table.Row{p.ID, p.Name, p.PathWithNamespace, p.Description})
 		}
+
+		fmt.Println(t.Render())
+
 	},
 }
 
