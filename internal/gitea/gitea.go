@@ -1,3 +1,6 @@
+/*
+Copyright © 2024 Rustam Tagaev linuxoid69@gmail.com
+*/
 package gitea
 
 import (
