@@ -9,7 +9,6 @@ import (
 
 	"github.com/linuxoid69/gitlab2gitea/internal/config"
 	"github.com/linuxoid69/gitlab2gitea/internal/flags"
-	"github.com/linuxoid69/gitlab2gitea/internal/git"
 	"github.com/linuxoid69/gitlab2gitea/internal/gitea"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -23,29 +22,43 @@ var gitlab2giteaCmd = &cobra.Command{
 		config.CheckConfigFileExists()
 
 		gitlabProject := flags.CheckFlag(cmd, "gitlab-project")
-		_ = flags.CheckFlag(cmd, "gitea-project")
+		giteaOrg := flags.CheckFlag(cmd, "gitea-org")
+		giteaProject := flags.CheckFlag(cmd, "gitea-project")
 
-		if err := git.CloneByHTTPS(&git.RepoOpt{
-			URL:      viper.GetString("gitlab.url"),
-			Username: git.GIT_GITLAB_DEFAULT_USERNAME,
-			Token:    viper.GetString("gitlab.token"),
-			TemDir:   git.GIT_MIGRATE_TEMP_DIR,
-			Project:  gitlabProject,
-		}); err != nil {
-			fmt.Println("Error cloning repo: ", err)
+		giteaClient := gitea.NewClient(viper.GetString("gitea.url"), viper.GetString("gitea.token"))
+		
+		projectExists, err := giteaClient.IsExistsProjectInOrg(&gitea.IsExistsProjectInOrgOpt{
+			OrgName:     giteaOrg,
+			ProjectName: giteaProject,
+		})
+		if err != nil {
+			fmt.Println("Error migrating repo: ", err)
 			os.Exit(1)
 		}
 
-		giteaClient := gitea.NewClient(viper.GetString("gitea.url"), viper.GetString("gitea.token"))
-		fmt.Println(giteaClient.GetCurrentUser())
-		// Check if repo already exists on Gitea
-		// if exists, print skipt message and continue
-		// if not then create new repo on Gitea
+		if projectExists {
+			fmt.Printf("Project `%s` already exists in `%s` - SKIP\n", giteaProject, giteaOrg)
+			os.Exit(1)
+		} else {
+			fmt.Printf("Run migration from GitLab project `%s` to Gitea project `%s/%s`\n", gitlabProject, giteaOrg, giteaProject)
+		}
+
+		if err := giteaClient.MigrateRepo(&gitea.MigrateRepoOpt{
+			OrgName:     giteaOrg,
+			ProjectName: giteaProject,
+			GitlabToken: viper.GetString("gitlab.token"),
+			CloneAddr:   viper.GetString("gitlab.url") + "/" + gitlabProject,
+
+		}); err != nil {
+			fmt.Println("Error migrating repo: ", err)
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
 	migrateCmd.AddCommand(gitlab2giteaCmd)
-	gitlab2giteaCmd.Flags().StringP("gitlab-project", "p", "", "Gitlab project")
-	gitlab2giteaCmd.Flags().StringP("gitea-project", "P", "", "Gitea project")
+	gitlab2giteaCmd.Flags().StringP("gitlab-project", "p", "", "Gitlab project name")
+	gitlab2giteaCmd.Flags().StringP("gitea-project", "P", "", "Gitea project name")
+	gitlab2giteaCmd.Flags().StringP("gitea-org", "o", "", "Gitea organization name")
 }
