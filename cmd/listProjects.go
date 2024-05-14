@@ -54,7 +54,7 @@ var listProjectsCmd = &cobra.Command{
 		})
 
 		for _, p := range projects {
-			t.AppendRow(table.Row{p.ID, p.Name, p.PathWithNamespace, p.Description})
+			t.AppendRow(table.Row{p.ID, p.Path, p.PathWithNamespace, p.Description})
 		}
 
 		fmt.Println(t.Render())
